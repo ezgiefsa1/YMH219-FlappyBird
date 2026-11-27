@@ -37,6 +37,16 @@ namespace YMH219_FlappyBird
             VelocityY = -JumpForce;
         }
 
+        // Kuşun ekranın üstünden çıkmasını engeller
+        public void ClampToTop()
+        {
+            if (Y < 0)
+            {
+                Y = 0;
+                VelocityY = 0;
+            }
+        }
+
         // Çarpışma kontrolünde kullanılacak dikdörtgen
         public Rectangle Bounds
         {

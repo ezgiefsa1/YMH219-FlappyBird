@@ -18,6 +18,7 @@ namespace YMH219_FlappyBird
         private float pipeSpeed = 3f;                 // engellerin hızı
         private const int GroundY = 550;              // zeminin başladığı Y
         private const int PipeSpacing = 220;          // iki engel arası mesafe
+        private bool gameOver = false;                // oyun bitti mi?
 
         public GameForm()
         {
@@ -37,7 +38,10 @@ namespace YMH219_FlappyBird
 
         private void gameTimer_Tick(object sender, EventArgs e)
         {
+            if (gameOver) return;
+
             bird.Update();   // konumu hesapla
+            bird.ClampToTop();
 
             foreach (Pipe pipe in pipes)
             {
@@ -52,7 +56,37 @@ namespace YMH219_FlappyBird
                 }
             }
 
+            CheckCollisions();
             Invalidate();    // yeniden çiz
+        }
+
+        // Kuş zemine veya bir engele çarptı mı?
+        private void CheckCollisions()
+        {
+            Rectangle birdRect = bird.Bounds;
+
+            if (birdRect.Bottom >= GroundY)
+            {
+                EndGame();
+                return;
+            }
+
+            foreach (Pipe pipe in pipes)
+            {
+                if (pipe.Collides(birdRect))
+                {
+                    EndGame();
+                    return;
+                }
+            }
+        }
+
+        // Oyunu durdurur ve Game Over ekranını gösterir
+        private void EndGame()
+        {
+            gameOver = true;
+            gameTimer.Stop();
+            Invalidate();
         }
 
         private void GameForm_Paint(object sender, PaintEventArgs e)
@@ -61,11 +95,34 @@ namespace YMH219_FlappyBird
             foreach (Pipe pipe in pipes)
                 pipe.Draw(e.Graphics);
             bird.Draw(e.Graphics);
+
+            if (gameOver)
+            {
+                DrawGameOver(e.Graphics);
+            }
+        }
+
+        // Yarı saydam bir perde üzerine "GAME OVER" yazar
+        private void DrawGameOver(Graphics g)
+        {
+            using (SolidBrush shade = new SolidBrush(Color.FromArgb(150, Color.Black)))
+            {
+                g.FillRectangle(shade, 0, 0, ClientSize.Width, ClientSize.Height);
+            }
+
+            using (Font font = new Font("Segoe UI", 32, FontStyle.Bold))
+            using (StringFormat center = new StringFormat())
+            {
+                center.Alignment = StringAlignment.Center;
+                center.LineAlignment = StringAlignment.Center;
+                g.DrawString("GAME OVER", font, Brushes.White,
+                    new RectangleF(0, 0, ClientSize.Width, ClientSize.Height - 100), center);
+            }
         }
 
         private void GameForm_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.Space)
+            if (e.KeyCode == Keys.Space && !gameOver)
             {
                 bird.Jump();
             }
