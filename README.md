@@ -55,9 +55,9 @@ Projenin amacı; Timer ile oyun döngüsü kurmak, klavye olaylarını yakalamak
 
 ## Ekran Görüntüleri
 
-**Oyun sırasında**
+**Başlangıç ekranı**
 
-![Oyun sırasında](screenshots/oyun.png)
+![Başlangıç ekranı](screenshots/baslangic.png)
 
 **Game Over ekranı**
 
