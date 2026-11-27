@@ -19,6 +19,7 @@ namespace YMH219_FlappyBird
         private const int GroundY = 550;              // zeminin başladığı Y
         private const int PipeSpacing = 220;          // iki engel arası mesafe
         private bool gameOver = false;                // oyun bitti mi?
+        private int score = 0;                        // geçilen engel sayısı
 
         public GameForm()
         {
@@ -46,6 +47,14 @@ namespace YMH219_FlappyBird
             foreach (Pipe pipe in pipes)
             {
                 pipe.Move(pipeSpeed);
+
+                // Engelin sağ kenarı kuşun soluna geçtiyse engel başarıyla geçilmiştir
+                if (!pipe.Passed && pipe.X + Pipe.Width < bird.X)
+                {
+                    pipe.Passed = true;
+                    score++;
+                }
+
                 if (pipe.IsOffScreen)
                 {
                     // en sağdaki engelin arkasına geri gönder
@@ -95,10 +104,24 @@ namespace YMH219_FlappyBird
             foreach (Pipe pipe in pipes)
                 pipe.Draw(e.Graphics);
             bird.Draw(e.Graphics);
+            DrawScore(e.Graphics);
 
             if (gameOver)
             {
                 DrawGameOver(e.Graphics);
+            }
+        }
+
+        // Skoru ekranın üst ortasına gölgeli olarak yazar
+        private void DrawScore(Graphics g)
+        {
+            using (Font font = new Font("Segoe UI", 28, FontStyle.Bold))
+            using (StringFormat center = new StringFormat())
+            {
+                center.Alignment = StringAlignment.Center;
+                string text = score.ToString();
+                g.DrawString(text, font, Brushes.Black, new RectangleF(2, 22, ClientSize.Width, 50), center);
+                g.DrawString(text, font, Brushes.White, new RectangleF(0, 20, ClientSize.Width, 50), center);
             }
         }
 
@@ -117,6 +140,15 @@ namespace YMH219_FlappyBird
                 center.LineAlignment = StringAlignment.Center;
                 g.DrawString("GAME OVER", font, Brushes.White,
                     new RectangleF(0, 0, ClientSize.Width, ClientSize.Height - 100), center);
+            }
+
+            using (Font small = new Font("Segoe UI", 16))
+            using (StringFormat center = new StringFormat())
+            {
+                center.Alignment = StringAlignment.Center;
+                center.LineAlignment = StringAlignment.Center;
+                g.DrawString("Skor: " + score, small, Brushes.White,
+                    new RectangleF(0, 0, ClientSize.Width, ClientSize.Height), center);
             }
         }
 
