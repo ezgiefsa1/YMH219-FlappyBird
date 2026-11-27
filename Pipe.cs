@@ -56,6 +56,12 @@ namespace YMH219_FlappyBird
             }
         }
 
+        // Verilen dikdörtgen (kuş) üst veya alt sütuna çarpıyor mu?
+        public bool Collides(Rectangle other)
+        {
+            return other.IntersectsWith(TopRect) || other.IntersectsWith(BottomRect);
+        }
+
         // Kendi stilimiz: gri taş sütunlar
         public void Draw(Graphics g)
         {
