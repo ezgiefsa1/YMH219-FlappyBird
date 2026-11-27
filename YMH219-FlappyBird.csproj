@@ -55,6 +55,7 @@
       <DependentUpon>GameForm.cs</DependentUpon>
     </Compile>
     <Compile Include="GameState.cs" />
+    <Compile Include="HighScoreManager.cs" />
     <Compile Include="Pipe.cs" />
     <Compile Include="Player.cs" />
     <Compile Include="Program.cs" />

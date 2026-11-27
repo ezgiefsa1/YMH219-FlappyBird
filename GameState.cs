@@ -1,4 +1,6 @@
-﻿namespace YMH219_FlappyBird
+﻿using System;
+
+namespace YMH219_FlappyBird
 {
     /// <summary>
     /// Oyunun içinde bulunabileceği durumlar.
@@ -18,10 +20,19 @@
     public class GameState
     {
         public const float StartSpeed = 3f;
+        public const float MaxSpeed = 7f;
+        public const int PointsPerLevel = 5;       // her 5 puanda bir seviye atlanır
 
         public int Score { get; private set; }
         public float Speed { get; private set; }
         public GameStatus Status { get; private set; }
+        public int HighScore { get; private set; }
+
+        // Seviye skordan hesaplanır: 0-4 puan = 1. seviye, 5-9 = 2. seviye ...
+        public int Level
+        {
+            get { return Score / PointsPerLevel + 1; }
+        }
 
         public bool IsPlaying
         {
@@ -61,10 +72,28 @@
             Status = GameStatus.GameOver;
         }
 
-        // Bir engel geçildiğinde çağrılır
+        // Bir engel geçildiğinde çağrılır; seviye arttıkça hız da artar
         public void AddPoint()
         {
             Score++;
+            Speed = Math.Min(MaxSpeed, StartSpeed + (Level - 1) * 0.5f);
+        }
+
+        // Dosyadan okunan en yüksek skoru yükler
+        public void LoadHighScore(int value)
+        {
+            HighScore = value;
+        }
+
+        // Skor rekoru geçtiyse en yüksek skoru günceller ve true döner
+        public bool UpdateHighScore()
+        {
+            if (Score > HighScore)
+            {
+                HighScore = Score;
+                return true;
+            }
+            return false;
         }
     }
 }

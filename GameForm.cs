@@ -15,6 +15,8 @@ namespace YMH219_FlappyBird
         private Player bird;   // formun kuşu
         private List<Pipe> pipes;
         private GameState state = new GameState();    // skor, hız ve oyun durumu
+        private HighScoreManager highScores = new HighScoreManager();
+        private bool newRecord = false;               // son oyunda rekor kırıldı mı?
         private Random random = new Random();
         private const int GroundY = 550;              // zeminin başladığı Y
         private const int PipeSpacing = 220;          // iki engel arası mesafe
@@ -30,6 +32,7 @@ namespace YMH219_FlappyBird
             newGameButton.Left = (ClientSize.Width - newGameButton.Width) / 2;
             newGameButton.Top = 370;
 
+            state.LoadHighScore(highScores.Load());
             StartNewGame();
         }
 
@@ -43,6 +46,7 @@ namespace YMH219_FlappyBird
             pipes.Add(new Pipe(400 + PipeSpacing, RandomGapY(), GroundY));
 
             state.Reset();
+            newRecord = false;
             newGameButton.Visible = false;
             ActiveControl = null;   // klavye odağı forma geri dönsün
             gameTimer.Start();
@@ -108,6 +112,17 @@ namespace YMH219_FlappyBird
         {
             state.End();
             gameTimer.Stop();
+
+            if (state.UpdateHighScore())
+            {
+                newRecord = true;
+                if (!highScores.Save(state.HighScore))
+                {
+                    MessageBox.Show("En yüksek skor dosyaya kaydedilemedi.", "Uyarı",
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+            }
+
             newGameButton.Visible = true;
             Invalidate();
         }
@@ -124,13 +139,15 @@ namespace YMH219_FlappyBird
             {
                 case GameStatus.Ready:
                     DrawMessage(e.Graphics, "Hazır!",
-                        "Başlamak için SPACE\n\nSPACE / Yukarı ok: zıpla\nP: duraklat   R: yeniden başlat");
+                        "Başlamak için SPACE\n\nSPACE / Yukarı ok: zıpla\nP: duraklat   R: yeniden başlat\n\nEn yüksek skor: " + state.HighScore);
                     break;
                 case GameStatus.Paused:
                     DrawMessage(e.Graphics, "DURAKLATILDI", "Devam etmek için P");
                     break;
                 case GameStatus.GameOver:
-                    DrawMessage(e.Graphics, "GAME OVER", "Skor: " + state.Score + "\n\nYeniden başlamak için R");
+                    string record = newRecord ? "\nYENİ REKOR!" : "";
+                    DrawMessage(e.Graphics, "GAME OVER",
+                        "Skor: " + state.Score + "   En yüksek: " + state.HighScore + record + "\n\nYeniden başlamak için R");
                     break;
             }
         }
@@ -145,6 +162,12 @@ namespace YMH219_FlappyBird
                 string text = state.Score.ToString();
                 g.DrawString(text, font, Brushes.Black, new RectangleF(2, 22, ClientSize.Width, 50), center);
                 g.DrawString(text, font, Brushes.White, new RectangleF(0, 20, ClientSize.Width, 50), center);
+            }
+
+            // Sol üst köşede seviye bilgisi
+            using (Font small = new Font("Segoe UI", 11, FontStyle.Bold))
+            {
+                g.DrawString("Seviye " + state.Level, small, Brushes.White, 10, 10);
             }
         }
 
@@ -162,7 +185,7 @@ namespace YMH219_FlappyBird
             {
                 center.Alignment = StringAlignment.Center;
                 g.DrawString(title, titleFont, Brushes.White, new RectangleF(0, 170, ClientSize.Width, 60), center);
-                g.DrawString(detail, detailFont, Brushes.White, new RectangleF(0, 240, ClientSize.Width, 130), center);
+                g.DrawString(detail, detailFont, Brushes.White, new RectangleF(0, 240, ClientSize.Width, 200), center);
             }
         }
 
