@@ -29,6 +29,8 @@ namespace YMH219_FlappyBird
             KeyPreview = true;
 
             // Yeni Oyun butonunu ekranın ortasına yerleştir
+            // (boyut kodla verilir, böylece ekran ölçeklendirmesinde yazı kesilmez)
+            newGameButton.Size = new Size(160, 44);
             newGameButton.Left = (ClientSize.Width - newGameButton.Width) / 2;
             newGameButton.Top = 370;
 
